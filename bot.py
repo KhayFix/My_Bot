@@ -3,6 +3,7 @@ import logging
 from random import choice
 
 from emoji import emojize
+from telegram import ReplyKeyboardMarkup
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters)
 
 import settings
@@ -16,7 +17,7 @@ logging.basicConfig(format='%(asctime)s -%(name)s - %(levelname)s - %(message)s'
 
 # обработка команды старт
 def greet_user(bot, update, user_data):
-    emo = emojize(choice(settings.USER_EMOJI), use_aliases=True)
+    emo = get_user_emo(user_data)
     user_data['emo'] = emo
     text = f'Привет {emo}'
     update.message.reply_text(text)
@@ -24,7 +25,8 @@ def greet_user(bot, update, user_data):
 
 # Пишет в сообшение что было написанно. Пишет в логи кто, что писал.
 def talk_to_me(bot, update, user_data):
-    user_text = 'Привет {}{}! Ты написал: {}'.format(update.message.chat.first_name, user_data['emo'],
+    emo = get_user_emo(user_data)
+    user_text = 'Привет {}{}! Ты написал: {}'.format(update.message.chat.first_name, emo,
                                                      update.message.text)
     logging.info('User: %s, Chat id: %s, Message: %s',
                  update.message.chat.username,
@@ -37,6 +39,14 @@ def send_cat_picture(bot, update, user_data):
     cat_list = glob('images/*.jp*g')
     cat_pic = choice(cat_list)
     bot.send_photo(chat_id=update.message.chat.id, photo=open(cat_pic, 'rb'))
+
+
+def get_user_emo(user_data):
+    if 'emo' in user_data:
+        return user_data['emo']
+    else:
+        user_data['emo'] = emojize(choice(settings.USER_EMOJI), use_aliases=True)
+        return user_data['emo']
 
 
 # Функция соединения с платформой Телеграмм
