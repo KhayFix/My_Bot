@@ -32,6 +32,12 @@ def talk_to_me(bot, update):
                  update.message.text)
     update.message.reply_text(user_text)
 
+def send_cat_picture(bot, update):
+    cat_list = glob('images/*.jp*g')
+    cat_pic = choice(cat_list)
+    bot.send_photo(chat_id=update.message.chat.id, photo=open(cat_pic, 'rb'))
+
+
 
 # Функция соединения с платформой Телеграмм
 def main():
@@ -40,6 +46,9 @@ def main():
 
     dp = my_bot.dispatcher
     dp.add_handler(CommandHandler('start', greet_user))
+    dp.add_handler(CommandHandler('cat', send_cat_picture))
+
+
     dp.add_handler(MessageHandler(Filters.text, talk_to_me))
 
 
