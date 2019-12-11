@@ -2,11 +2,10 @@ from glob import glob
 import logging
 from random import choice
 
-from emoji import emojize
-from telegram import ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import (Updater, CommandHandler, MessageHandler, RegexHandler, Filters)
 
 import settings
+from utils import get_keyboard, get_user_emo
 
 # Журнал событий
 logging.basicConfig(format='%(asctime)s -%(name)s - %(levelname)s - %(message)s',
@@ -58,25 +57,6 @@ def get_location(bot, update, user_data):
     update.message.reply_text(f'Готово: {get_user_emo(user_data)}', reply_markup=get_keyboard())
 
 
-def get_user_emo(user_data):
-    if 'emo' in user_data:
-        return user_data['emo']
-    else:
-        user_data['emo'] = emojize(choice(settings.USER_EMOJI), use_aliases=True)
-        return user_data['emo']
-
-
-def get_keyboard():
-    contact_button = KeyboardButton('Прислать контакты', request_contact=True)
-    location_button = KeyboardButton('Прислать координаты', request_location=True)
-
-    my_keyboard = ReplyKeyboardMarkup([['Прислать котика', 'Сменить аватарку'],
-                                       [contact_button, location_button]],
-                                      resize_keyboard=True)
-
-    return my_keyboard
-
-
 # Функция соединения с платформой Телеграмм
 def main():
     my_bot = Updater(settings.API_KEY, request_kwargs=settings.PROXY)
@@ -85,6 +65,7 @@ def main():
     dp = my_bot.dispatcher
     dp.add_handler(CommandHandler('start', greet_user, pass_user_data=True))
     dp.add_handler(CommandHandler('cat', send_cat_picture, pass_user_data=True))
+
     dp.add_handler(RegexHandler('^(Прислать котика)$', send_cat_picture, pass_user_data=True))
     dp.add_handler(RegexHandler('^(Сменить аватарку)$', change_avatar, pass_user_data=True))
 
