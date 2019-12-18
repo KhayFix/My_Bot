@@ -38,5 +38,7 @@ https://www.webfx.com/tools/emoji-cheat-sheet/
 Запуск
 ----------
 В активированном виртуальном окружении выполните:
+
 .. code-block:: text
+
     python bot.py
